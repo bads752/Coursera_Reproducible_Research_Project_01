@@ -7,7 +7,8 @@ output:
     keep_md: true
 ---
 
-```{r options}
+
+```r
 knitr::opts_chunk$set(message = FALSE,warning = FALSE)
 ```
 
@@ -20,12 +21,22 @@ for your analysis
 
 
 
-```{r load_file}
+
+```r
 myurl <- "https://github.com/rdpeng/RepData_PeerAssessment1/blob/master/activity.zip"
 temp <- tempfile()
 download.file(myurl, temp)
 mydata <- read.csv("activity.csv")
 head(mydata,n = 5)
+```
+
+```
+##   steps       date interval
+## 1    NA 2012-10-01        0
+## 2    NA 2012-10-01        5
+## 3    NA 2012-10-01       10
+## 4    NA 2012-10-01       15
+## 5    NA 2012-10-01       20
 ```
 
 
@@ -39,7 +50,8 @@ For this part of the assignment, we remove the missing values in the dataset.
 steps taken per day
 
 
-```{r daystep_hist}
+
+```r
 library(ggplot2)
 library(plyr)
 library(scales)
@@ -53,17 +65,18 @@ df_sum <- ddply(df, "date", summarise, grp.sum=sum(steps,na.rm = TRUE))
 ggplot(df_sum,aes(grp.sum)) + geom_histogram(bins = 20) + ylab('Frequency') + 
   xlab('Total Steps') + 
   ggtitle('Histogram of the total number of steps per day')
-
-
 ```
 
+![](PA1_template_files/figure-html/daystep_hist-1.png)<!-- -->
 
-```{r daily_stats}
+
+
+```r
 daily_mean <- (mean(df_sum$grp.sum))
 daily_median <- median(df_sum$grp.sum)
 ```
 Considering that all NA values have been removed, the mean value of total steps
-per day is `r daily_mean` and the respective median is `r daily_median`
+per day is 1.0766189\times 10^{4} and the respective median is 10765
 
 
 
@@ -77,7 +90,8 @@ averaged across all days (y-axis)
 contains the maximum number of steps?
 
 
-```{r daily_activity}
+
+```r
 #omitting NA values
 df <- na.omit(mydata)
 
@@ -90,10 +104,13 @@ plot(interval_mean$interval, interval_mean$grp.sum, type='l', col=1,
      ylab="Averaged number of steps")
 ```
 
+![](PA1_template_files/figure-html/daily_activity-1.png)<!-- -->
+
 ### Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
 
-```{r max_step_int}
+
+```r
 # Subset the interval which has the highest average steps
 maxdf<-interval_mean[grep(max(interval_mean$grp.sum),interval_mean$grp.sum), ]
 # Interval with max number of steps
@@ -101,8 +118,8 @@ max_step_interval<-maxdf[1,1]
 # Max number of steps
 max_step_mean<-maxdf[1,2]
 ```
-Interval `r max_step_interval` has the maximum average number of 
-steps `r max_step_mean`.
+Interval 835 has the maximum average number of 
+steps 206.1698113.
 
 
 
@@ -129,17 +146,19 @@ daily number of steps?
 
 ### Calculate and report the total number of missing values in the dataset 
 (i.e. the total number of rows with NAs).
-```{r na_count}
+
+```r
 # Counting thenumber of NA values
 na_count<-sum(is.na(mydata$steps))
 ```
 
-There are `r na_count` rows with NA values in the dataset
+There are 2304 rows with NA values in the dataset
 
 ### Filling Missing Values
 
 We will replace the NA values with the 5-minute interval median
-```{r fill_NA}
+
+```r
 # creating a new dataframe to store the filled NA version
 nadf<-mydata
 
@@ -159,7 +178,8 @@ for (i in 1:nrow(nadf)){
 
 ## Histogram of dataset with filled NA values
 
-```{r na_hist}
+
+```r
 #creating a dataframe for total steps per day 
 nafill <- ddply(nadf, "date", summarise, grp.sum=sum(steps,na.rm = TRUE))
 
@@ -168,17 +188,20 @@ ggplot(nafill,aes(grp.sum)) + geom_histogram(bins = 20) + ylab('Frequency') +
   xlab('Total Steps') + ggtitle('Histogram of the total number of steps per day')
 ```
 
+![](PA1_template_files/figure-html/na_hist-1.png)<!-- -->
+
 ### Mean and median of NA filled dataset
 
-```{r daily_stats_NA}
+
+```r
 nafill <- ddply(nadf, "date", summarise, grp.sum=sum(steps,na.rm = TRUE))
 daily_mean_na <- (mean(nafill$grp.sum))
 daily_median_na <- median(nafill$grp.sum)
 ```
 Considering that all NA values have been filled, the mean value of total steps
-per day is `r daily_mean_na` and the respective median is `r daily_median_na`.
-When the NA values were omitted the mean was `r daily_mean` and the median was 
-`r daily_median`. There is little to no change at these values, that is because 
+per day is 1.0766189\times 10^{4} and the respective median is 1.0766189\times 10^{4}.
+When the NA values were omitted the mean was 1.0766189\times 10^{4} and the median was 
+10765. There is little to no change at these values, that is because 
 of how we filled the NA values (using 5-minute intervals means across all days).
 
 
@@ -197,9 +220,17 @@ in the GitHub repository to see an example of what this plot should look
 like using simulated data.
 
 Determining if the day is a weekday or not
-```{r weekday}
+
+```r
 # setting locale for US 
 Sys.setlocale("LC_TIME", "C")
+```
+
+```
+## [1] "C"
+```
+
+```r
 weekday <- function(d) {
     wd <- weekdays(as.Date(d, '%Y-%m-%d'))
     if  (!(wd == 'Saturday' || wd == 'Sunday')) {
@@ -213,7 +244,8 @@ weekday <- function(d) {
 
 Apply the weekday function to our NA filled dataset and make plots
 
-```{r weekday_analysis}
+
+```r
 # Apply the weekday function and add a new column to nadf dataset
 nadf$day_type <- as.factor(sapply(nadf$date, weekday))
 
@@ -228,6 +260,8 @@ weekday_plt <- ggplot(interval_mean_nafilled, aes(interval, steps)) +
     ggtitle("Number of steps Per Interval by day type")
 print(weekday_plt)
 ```
+
+![](PA1_template_files/figure-html/weekday_analysis-1.png)<!-- -->
 
 There are some diferences between the average of steps between weekdays and 
 weekend days. Notably, it seems that the user starts walking a bit later in the 
