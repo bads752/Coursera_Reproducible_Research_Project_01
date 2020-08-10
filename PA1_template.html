@@ -370,7 +370,7 @@ summary {
 </div>
 
 
-<pre class="r"><code>knitr::opts_chunk$set(message = FALSE,warning = FALSE)</code></pre>
+<pre class="r"><code>knitr::opts_chunk$set(message = FALSE,warning = FALSE,echo=TRUE)</code></pre>
 <div id="loading-and-preprocessing-the-data" class="section level2">
 <h2>Loading and preprocessing the data</h2>
 <p>Show any code that is needed to</p>
@@ -522,12 +522,11 @@ Sys.setlocale(&quot;LC_TIME&quot;, &quot;C&quot;)</code></pre>
 <pre class="r"><code># Apply the weekday function and add a new column to nadf dataset
 nadf$day_type &lt;- as.factor(sapply(nadf$date, weekday))
 
-# Create the aggregated data frame by intervals and day_type
+# Create the aggregated data frame by intervals and day type
 interval_mean_nafilled &lt;- aggregate(steps ~ interval+day_type, nadf, mean)
 
 weekday_plt &lt;- ggplot(interval_mean_nafilled, aes(interval, steps)) +
     geom_line(stat = &quot;identity&quot;, aes(colour = day_type)) +
-    theme_gray() +
     facet_grid(day_type ~ ., scales=&quot;fixed&quot;, space=&quot;fixed&quot;) +
     labs(x=&quot;Interval&quot;, y=expression(&quot;Number of Steps&quot;)) +
     ggtitle(&quot;Number of steps Per Interval by day type&quot;)
