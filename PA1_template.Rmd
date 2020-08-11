@@ -217,11 +217,12 @@ Apply the weekday function to our NA filled dataset and make plots
 # Apply the weekday function and add a new column to nadf dataset
 nadf$day_type <- as.factor(sapply(nadf$date, weekday))
 
-# Create the aggregated data frame by intervals and day type
+# Aggregating mean value of steps by intervals and day type
 interval_mean_nafilled <- aggregate(steps ~ interval+day_type, nadf, mean)
 
 weekday_plt <- ggplot(interval_mean_nafilled, aes(interval, steps)) +
     geom_line(stat = "identity", aes(colour = day_type)) +
+    scale_colour_manual(values=c(Weekday="#FF0066",Weekend="#663399")) +
     facet_grid(day_type ~ ., scales="fixed", space="fixed") +
     labs(x="Interval", y=expression("Number of Steps")) +
     ggtitle("Number of steps Per Interval by day type")
